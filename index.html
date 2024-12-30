@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Fetching</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-b from-gray-100 to-gray-300 text-gray-900">
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold text-center mb-8 text-blue-600">Data Fetching with Fetch API</h1>
+
+        <div id="data-container" class="space-y-6">
+            <!-- Sections for data will be inserted here -->
+        </div>
+    </div>
+
+    <script>
+        const apiEndpoints = {
+            penyuplai: 'https://wypypesha.my.id/api/penyuplai',
+            penjualan: 'https://wypypesha.my.id/api/penjualan',
+            pelanggan: 'https://wypypesha.my.id/api/pelanggan',
+            barang: 'https://wypypesha.my.id/api/barang',
+            golongan: 'https://wypypesha.my.id/api/golongan',
+        };
+
+        const fetchData = async (endpoint, key) => {
+            try {
+                const response = await fetch(endpoint);
+                if (!response.ok) {
+                    throw new Error(`Error fetching ${key}: ${response.statusText}`);
+                }
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error(error);
+                return { error: error.message };
+            }
+        };
+
+        const renderData = (key, data) => {
+            const container = document.getElementById('data-container');
+            const section = document.createElement('div');
+            section.className = "bg-white shadow-lg rounded border border-blue-400 p-4 hover:shadow-2xl transition-shadow duration-300";
+
+            const header = document.createElement('h2');
+            header.className = "text-xl font-semibold mb-4 text-blue-500";
+            header.textContent = key.charAt(0).toUpperCase() + key.slice(1);
+            section.appendChild(header);
+
+            if (data.error) {
+                const errorText = document.createElement('p');
+                errorText.className = "text-red-500 font-medium";
+                errorText.textContent = data.error;
+                section.appendChild(errorText);
+            } else {
+                const pre = document.createElement('pre');
+                pre.className = "overflow-auto bg-gray-50 p-3 rounded text-sm border border-gray-200";
+                pre.textContent = JSON.stringify(data, null, 2);
+                section.appendChild(pre);
+            }
+
+            container.appendChild(section);
+        };
+
+        const loadData = async () => {
+            for (const [key, endpoint] of Object.entries(apiEndpoints)) {
+                const data = await fetchData(endpoint, key);
+                renderData(key, data);
+            }
+        };
+
+        window.onload = loadData;
+    </script>
+</body>
+</html>
